@@ -13,6 +13,7 @@ Next.js должен слать POST на http://<адрес_сервера>:500
 
 import os
 import json
+import re
 import logging
 import urllib.request
 import urllib.error
@@ -50,7 +51,7 @@ CHAT_IDS = [
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
 PORT = int(os.environ.get("PORT", 5000))
 
-TELEGRAM_API_URL = f"https://t.me/qyzuzatu2026bot{BOT_TOKEN}/sendMessage"
+TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
 if not BOT_TOKEN:
     log.warning("BOT_TOKEN не задан через переменные окружения!")
@@ -92,13 +93,21 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write(body)
 
     def do_GET(self):
-        if self.path == "/health":
+        if self.path == "/health" or self.path == "/":
             self._send_json(200, {"ok": True})
         else:
             self._send_json(404, {"ok": False, "error": "not_found"})
 
+    def do_HEAD(self):
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.end_headers()
+
     def do_POST(self):
-        if self.path != "/notify":
+        # схлопываем повторяющиеся слэши (на случай BOT_URL с / на конце,
+        # из-за которого получается //notify вместо /notify)
+        normalized_path = re.sub(r"/+", "/", self.path.split("?")[0]).rstrip("/")
+        if normalized_path != "/notify":
             self._send_json(404, {"ok": False, "error": "not_found"})
             return
 
