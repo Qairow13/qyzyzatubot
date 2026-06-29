@@ -50,7 +50,7 @@ CHAT_IDS = [
 SECRET_KEY = os.environ.get("SECRET_KEY", "")
 PORT = int(os.environ.get("PORT", 5000))
 
-TELEGRAM_API_URL = f"t.me/qyzuzatu2026bot{BOT_TOKEN}/sendMessage"
+TELEGRAM_API_URL = f"https://t.me/qyzuzatu2026bot{BOT_TOKEN}/sendMessage"
 
 if not BOT_TOKEN:
     log.warning("BOT_TOKEN не задан через переменные окружения!")
